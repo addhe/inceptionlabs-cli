@@ -36,7 +36,7 @@ def save_chat_history(history, model):
 
 @click.group(invoke_without_command=True)
 @click.pass_context
-@click.option('--model', default='mercury-1', help='Model to use for interactive chat (default: mercury-1)')
+@click.option('--model', default='mercury', help='Model to use for interactive chat (default: mercury)')
 @click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
 def cli(ctx, model, max_tokens):
     """InceptionLabs CLI tool. Run without arguments to enter interactive chat mode."""
@@ -115,7 +115,7 @@ def interactive_chat(model, max_tokens):
 
 @cli.command()
 @click.argument('prompt', type=str)
-@click.option('--model', default='mercury-1', help='Model to use for completion (default: mercury-1)')
+@click.option('--model', default='mercury', help='Model to use for completion (default: mercury)')
 @click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
 def ask(prompt, model, max_tokens):
     """Ask a question or send a prompt to InceptionLabs AI."""
