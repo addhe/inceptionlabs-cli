@@ -33,15 +33,36 @@ export INCEPTION_API_KEY=your_actual_api_key_here
 
 ## Usage
 
-The main entry point is `cli.py`. You can ask questions directly from the command line:
+The main entry point is `cli.py`. The CLI supports several commands for different types of AI interactions:
 
+### 1. Ask (Chat Completion)
+Ask questions directly from the command line:
 ```bash
 python cli.py ask "What is a diffusion model?"
 ```
 
-### Options
+### 2. FIM (Fill-in-the-Middle)
+Complete code between a prefix and suffix:
+```bash
+python cli.py fim "def fibonacci(" "return a + b" --model mercury-edit
+```
 
-* `--model`: Specify the model to use (default: `mercury-2`).
+### 3. Apply (Code Update)
+Apply changes to existing code using an update snippet:
+```bash
+python cli.py apply "<original_code_here>" "<update_snippet_here>" --model mercury-edit
+```
+
+### 4. Edit (Context-Aware Edit)
+Edit code with full context including file content, diff history, and recently viewed files:
+```bash
+python cli.py edit "solver.py" "<file_content>" "<code_to_edit>" "<diff_history>" "<recently_viewed>" --model mercury-edit
+```
+
+### Global Options
+
+Most commands support these options:
+* `--model`: Specify the model to use (defaults vary by command).
 * `--max-tokens`: Set the maximum number of tokens to generate (default: `1000`).
 
 Example with options:
