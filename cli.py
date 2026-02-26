@@ -36,8 +36,8 @@ def save_chat_history(history, model):
 
 @click.group(invoke_without_command=True)
 @click.pass_context
-@click.option('--model', default='mercury', help='Model to use for interactive chat (default: mercury)')
-@click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
+@click.option('--model', default='mercury-2', help='Model to use for interactive chat (default: mercury-2)')
+@click.option('--max-tokens', default=8192, help='Maximum number of tokens to generate (default: 8192)')
 def cli(ctx, model, max_tokens):
     """InceptionLabs CLI tool. Run without arguments to enter interactive chat mode."""
     if ctx.invoked_subcommand is None:
@@ -115,8 +115,8 @@ def interactive_chat(model, max_tokens):
 
 @cli.command()
 @click.argument('prompt', type=str)
-@click.option('--model', default='mercury', help='Model to use for completion (default: mercury)')
-@click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
+@click.option('--model', default='mercury-2', help='Model to use for completion (default: mercury-2)')
+@click.option('--max-tokens', default=8192, help='Maximum number of tokens to generate (default: 8192)')
 def ask(prompt, model, max_tokens):
     """Ask a question or send a prompt to InceptionLabs AI."""
     api_key = get_api_key()
@@ -151,7 +151,7 @@ def ask(prompt, model, max_tokens):
 @click.argument('prompt', type=str)
 @click.argument('suffix', type=str)
 @click.option('--model', default='mercury-edit', help='Model to use (default: mercury-edit)')
-@click.option('--max-tokens', default=1000, help='Maximum tokens to generate (default: 1000)')
+@click.option('--max-tokens', default=512, help='Maximum tokens to generate (default: 512)')
 def fim(prompt, suffix, model, max_tokens):
     """Fill-in-the-middle completion."""
     api_key = get_api_key()
@@ -188,7 +188,7 @@ def fim(prompt, suffix, model, max_tokens):
 @click.argument('original_code', type=str)
 @click.argument('update_snippet', type=str)
 @click.option('--model', default='mercury-edit', help='Model to use (default: mercury-edit)')
-@click.option('--max-tokens', default=1000, help='Maximum tokens to generate (default: 1000)')
+@click.option('--max-tokens', default=8192, help='Maximum tokens to generate (default: 8192)')
 def apply(original_code, update_snippet, model, max_tokens):
     """Apply an update snippet to original code."""
     api_key = get_api_key()
@@ -231,7 +231,7 @@ def apply(original_code, update_snippet, model, max_tokens):
 @click.argument('edit_diff_history', type=str, default="")
 @click.argument('recently_viewed', type=str, default="")
 @click.option('--model', default='mercury-edit', help='Model to use (default: mercury-edit)')
-@click.option('--max-tokens', default=1000, help='Maximum tokens to generate (default: 1000)')
+@click.option('--max-tokens', default=8192, help='Maximum tokens to generate (default: 8192)')
 def edit(file_path, file_content, code_to_edit, edit_diff_history, recently_viewed, model, max_tokens):
     """Edit code with cursor context and history."""
     api_key = get_api_key()

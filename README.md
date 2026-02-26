@@ -77,10 +77,10 @@ python cli.py edit "solver.py" "<file_content>" "<code_to_edit>" "<diff_history>
 ### Global Options
 
 Most commands support these options:
-* `--model`: Specify the model to use (defaults vary by command). For `ask`, the default is `mercury`.
-* `--max-tokens`: Set the maximum number of tokens to generate (default: `1000`).
+* `--model`: Specify the model to use (defaults vary by command). For `ask`, the default is `mercury-2`.
+* `--max-tokens`: Set the maximum number of tokens to generate (default: `8192` for most, `512` for `fim`).
 
 Example with options:
 ```bash
-python cli.py ask "Explain quantum computing in simple terms" --model mercury --max-tokens 500
+python cli.py ask "Explain quantum computing in simple terms" --model mercury-2 --max-tokens 500
 ```
