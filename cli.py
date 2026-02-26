@@ -1,6 +1,7 @@
 import os
 import click
 import requests
+import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -15,10 +16,102 @@ def get_api_key():
         click.secho("Please set it or create a .env file with INCEPTION_API_KEY=your_key", fg="yellow", err=True)
     return api_key
 
-@click.group()
-def cli():
-    """InceptionLabs CLI tool"""
-    pass
+def save_chat_history(history, model):
+    """Save chat history to memory/{date}.md"""
+    if not history or len(history) <= 1:  # Only system prompt
+        return
+        
+    os.makedirs("memory", exist_ok=True)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    time_str = datetime.datetime.now().strftime("%H:%M:%S")
+    file_path = f"memory/{date_str}.md"
+    
+    with open(file_path, "a", encoding="utf-8") as f:
+        f.write(f"\n\n## Session: {time_str} (Model: {model})\n\n")
+        for msg in history:
+            if msg["role"] == "system":
+                continue
+            role = "User" if msg["role"] == "user" else "Assistant"
+            f.write(f"**{role}:**\n{msg['content']}\n\n")
+
+@click.group(invoke_without_command=True)
+@click.pass_context
+@click.option('--model', default='mercury-1', help='Model to use for interactive chat (default: mercury-1)')
+@click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
+def cli(ctx, model, max_tokens):
+    """InceptionLabs CLI tool. Run without arguments to enter interactive chat mode."""
+    if ctx.invoked_subcommand is None:
+        interactive_chat(model, max_tokens)
+
+def interactive_chat(model, max_tokens):
+    """Interactive chat mode similar to Claude CLI."""
+    api_key = get_api_key()
+    if not api_key:
+        return
+
+    click.secho(f"Welcome to InceptionLabs CLI!", fg="cyan", bold=True)
+    click.secho(f"Using model: {model}", fg="cyan")
+    click.secho("Type '/exit' or '/bye' to quit.\n", fg="yellow")
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.inceptionlabs.ai/v1"
+    )
+
+    history = [{"role": "system", "content": "You are a helpful AI assistant."}]
+
+    try:
+        while True:
+            try:
+                # Prompt user
+                user_input = click.prompt(click.style("You", fg="green", bold=True))
+                
+                # Check for exit commands
+                if user_input.strip().lower() in ['/exit', '/bye']:
+                    break
+                
+                if not user_input.strip():
+                    continue
+
+                # Add user message to history
+                history.append({"role": "user", "content": user_input})
+                
+                # Call API
+                try:
+                    response = client.chat.completions.create(
+                        model=model,
+                        messages=history,
+                        max_tokens=max_tokens
+                    )
+                    
+                    assistant_msg = response.choices[0].message.content
+                    
+                    # Print response
+                    click.secho("\nAssistant:", fg="blue", bold=True)
+                    click.echo(assistant_msg)
+                    click.echo() # Empty line for spacing
+                    
+                    # Add assistant message to history
+                    history.append({"role": "assistant", "content": assistant_msg})
+                    
+                except Exception as e:
+                    error_msg = str(e)
+                    click.secho(f"API Error: {error_msg}", fg="red", err=True)
+                    if "early_access_required" in error_msg:
+                        click.secho("Note: This model currently requires early access.", fg="yellow", err=True)
+                        click.secho("You can sign up here: https://www.inceptionlabs.ai/early-access", fg="yellow", err=True)
+                    
+                    # Remove the user message that caused the error so they can try again
+                    history.pop()
+
+            except (KeyboardInterrupt, EOFError):
+                # Handle Ctrl+C or Ctrl+D
+                break
+                
+    finally:
+        # Save history when exiting
+        save_chat_history(history, model)
+        click.secho("\nGoodbye! Session history saved.", fg="cyan")
 
 @cli.command()
 @click.argument('prompt', type=str)

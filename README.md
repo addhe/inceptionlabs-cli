@@ -33,9 +33,24 @@ export INCEPTION_API_KEY=your_actual_api_key_here
 
 ## Usage
 
-The main entry point is `cli.py`. The CLI supports several commands for different types of AI interactions:
+The main entry point is `cli.py`. The CLI supports an interactive chat mode as well as several commands for different types of AI interactions.
 
-### 1. Ask (Chat Completion)
+### Interactive Chat Mode
+Run the CLI without any commands to enter interactive chat mode. It will maintain conversation context and save your session history automatically.
+
+```bash
+python cli.py
+```
+
+Or specify a model:
+```bash
+python cli.py --model mercury-1
+```
+
+* **Exiting:** Type `/exit`, `/bye`, or press `Ctrl+C`/`Ctrl+D` to exit the chat.
+* **History:** Your chat history will be automatically saved to `memory/<YYYY-MM-DD>.md` when you exit the session.
+
+### 1. Ask (Single Chat Completion)
 Ask questions directly from the command line:
 ```bash
 python cli.py ask "What is a diffusion model?"
