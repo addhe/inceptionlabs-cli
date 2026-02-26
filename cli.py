@@ -22,7 +22,7 @@ def cli():
 
 @cli.command()
 @click.argument('prompt', type=str)
-@click.option('--model', default='mercury-2', help='Model to use for completion (default: mercury-2)')
+@click.option('--model', default='mercury-1', help='Model to use for completion (default: mercury-1)')
 @click.option('--max-tokens', default=1000, help='Maximum number of tokens to generate (default: 1000)')
 def ask(prompt, model, max_tokens):
     """Ask a question or send a prompt to InceptionLabs AI."""
@@ -48,7 +48,11 @@ def ask(prompt, model, max_tokens):
         click.echo(response.choices[0].message.content)
         
     except Exception as e:
-        click.secho(f"Error: {str(e)}", fg="red", err=True)
+        error_msg = str(e)
+        click.secho(f"Error: {error_msg}", fg="red", err=True)
+        if "early_access_required" in error_msg:
+            click.secho("\nNote: Mercury-2 currently requires early access.", fg="yellow", err=True)
+            click.secho("You can sign up here: https://www.inceptionlabs.ai/early-access", fg="yellow", err=True)
 
 @cli.command()
 @click.argument('prompt', type=str)
