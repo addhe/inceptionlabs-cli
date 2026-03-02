@@ -1,6 +1,6 @@
 # InceptionLabs CLI
 
-A command-line interface for interacting with the InceptionLabs API using the OpenAI Python client.
+A command-line interface for interacting with the InceptionLabs API using the OpenAI Python client. get the API Key here [https://inceptionlabs.ai](https://docs.inceptionlabs.ai/get-started/get-started)
 
 ## Installation
 
