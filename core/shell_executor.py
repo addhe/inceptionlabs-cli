@@ -82,6 +82,27 @@ class ShellExecutor:
         return True, "OK"
     
     @classmethod
+    def fix_macos_incompatible_commands(cls, command: str) -> str:
+        """
+        Auto-fix common Linux commands that don't work on macOS.
+        
+        Returns:
+            Fixed command string
+        """
+        import re
+        
+        # Fix: date +%s%N (Linux) -> python3 timing (macOS compatible)
+        # Replace date +%s%N with python3 millisecond timing
+        if 'date +%s%N' in command:
+            command = re.sub(
+                r'\$\(date \+%s%N\)',
+                "$(python3 -c 'import time; print(int(time.time()*1000000000))')",
+                command
+            )
+        
+        return command
+    
+    @classmethod
     def execute(cls, command: str, timeout: int = 30) -> Tuple[bool, str, str]:
         """
         Execute shell command safely.
@@ -89,6 +110,9 @@ class ShellExecutor:
         Returns:
             Tuple of (success, stdout, stderr)
         """
+        # Auto-fix macOS incompatible commands
+        command = cls.fix_macos_incompatible_commands(command)
+        
         is_safe, reason = cls.is_safe_command(command)
         if not is_safe:
             return False, "", f"Command rejected: {reason}"
