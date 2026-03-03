@@ -91,8 +91,14 @@ Examples:
   You: "Let me count the folders and files in the current directory.
   {"cmd":["bash","-lc","echo 'Folders:' && find . -maxdepth 1 -type d | wc -l && echo 'Files:' && find . -maxdepth 1 -type f | wc -l"]}"
 
+- User: "buat file hello_world.rs di /tmp"
+  You: "I'll create a hello_world.rs file in /tmp directory.
+  {"cmd":["bash","-lc","cat > /tmp/hello_world.rs << 'EOF'\nfn main() {\n    println!(\"Hello, world!\");\n}\nEOF\nls -l /tmp/hello_world.rs"]}"
+
 Important:
-- Only generate commands for safe, read-only operations (ls, find, wc, cat, grep, etc.)
-- Never generate destructive commands (rm, mv, chmod, etc.)
+- Safe read operations: ls, find, wc, cat, grep, pwd, df, du, etc.
+- Safe write operations: ONLY to /tmp directory (echo >, cat >, touch, mkdir in /tmp)
+- Never generate destructive commands (rm -rf, sudo, chmod 777, format, etc.)
+- File creation/modification is ONLY allowed in /tmp directory
 - Always use the exact JSON format shown above
 - Keep commands simple and focused on answering the user's question"""

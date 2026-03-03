@@ -10,23 +10,42 @@ class ShellExecutor:
     """Execute shell commands safely."""
     
     DANGEROUS_COMMANDS = [
-        'rm', 'rmdir', 'del', 'format', 'mkfs',
+        'rm -rf', 'rmdir', 'del', 'format', 'mkfs',
         'dd', 'shutdown', 'reboot', 'halt',
-        '>', '>>', 'sudo', 'su'
+        'sudo', 'su', 'chmod 777', 'chown'
+    ]
+    
+    SAFE_WRITE_PATTERNS = [
+        r'cat\s+<<.*?>\s+/tmp/',  # heredoc to /tmp
+        r'echo\s+.*?>\s+/tmp/',    # echo to /tmp
+        r'printf\s+.*?>\s+/tmp/',  # printf to /tmp
+        r'tee\s+/tmp/',            # tee to /tmp
+        r'touch\s+/tmp/',          # touch in /tmp
+        r'mkdir\s+(-p\s+)?/tmp/',  # mkdir in /tmp
     ]
     
     @classmethod
     def is_safe_command(cls, command: str) -> Tuple[bool, str]:
         """Check if command is safe to execute."""
-        cmd_parts = shlex.split(command)
-        if not cmd_parts:
+        if not command or not command.strip():
             return False, "Empty command"
         
-        base_cmd = cmd_parts[0].lower()
+        # Check if it's a safe write operation to /tmp
+        import re
+        for pattern in cls.SAFE_WRITE_PATTERNS:
+            if re.search(pattern, command):
+                # It's a safe write to /tmp, allow it
+                return True, "OK"
         
+        # Check for dangerous commands
+        cmd_lower = command.lower()
         for dangerous in cls.DANGEROUS_COMMANDS:
-            if dangerous in command.lower():
+            if dangerous in cmd_lower:
                 return False, f"Dangerous command detected: {dangerous}"
+        
+        # Block write operations outside /tmp
+        if '>' in command and '/tmp/' not in command:
+            return False, "File write operations only allowed in /tmp directory"
         
         return True, "OK"
     
