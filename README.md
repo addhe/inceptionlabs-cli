@@ -4,16 +4,16 @@ A powerful command-line interface for interacting with the InceptionLabs API, in
 
 ## Features
 
-✨ **Interactive Chat Mode** - Conversational AI with context awareness
-🎨 **Rich Terminal UI** - Beautiful output with syntax highlighting and markdown rendering
-⚡ **Streaming Responses** - Real-time response streaming for better UX
-💾 **Session Management** - Resume previous conversations seamlessly
-🔧 **Code Editing Tools** - FIM, Apply, and Edit commands for code manipulation
-📝 **Command History** - Auto-suggest from previous commands
-🎯 **One-Shot Mode** - Quick queries without entering interactive mode
-🖥️ **Shell Command Execution** - Execute terminal commands safely from within the CLI
-🤖 **AI-Powered Command Detection** - AI automatically detects and executes shell commands from natural language
-🏗️ **Clean Code Architecture** - Modular design with separation of concerns
+✨ **Interactive Chat Mode** - Conversational AI with context awareness.  
+🎨 **Rich Terminal UI** - Beautiful output with syntax highlighting and markdown rendering.  
+⚡ **Streaming Responses** - Real-time response streaming for better UX.  
+💾 **Session Management** - Resume previous conversations seamlessly.  
+🔧 **Code Editing Tools** - FIM, Apply, and Edit commands for code manipulation.  
+📝 **Command History** - Auto-suggest from previous commands.  
+🎯 **One-Shot Mode** - Quick queries without entering interactive mode.  
+🖥️ **Shell Command Execution** - Execute terminal commands safely from within the CLI.  
+🤖 **AI-Powered Command Detection** - AI automatically detects and executes shell commands from natural language.  
+🏗️ **Clean Code Architecture** - Modular design with separation of concerns.  
 
 ## Installation
 
