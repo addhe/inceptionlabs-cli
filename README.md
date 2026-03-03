@@ -11,6 +11,8 @@ A powerful command-line interface for interacting with the InceptionLabs API, in
 🔧 **Code Editing Tools** - FIM, Apply, and Edit commands for code manipulation
 📝 **Command History** - Auto-suggest from previous commands
 🎯 **One-Shot Mode** - Quick queries without entering interactive mode
+🖥️ **Shell Command Execution** - Execute terminal commands safely from within the CLI
+🏗️ **Clean Code Architecture** - Modular design with separation of concerns
 
 ## Installation
 
@@ -71,7 +73,28 @@ Once in interactive mode, you can use these commands:
 - **`/help`** - Show available commands
 - **`/clear`** - Clear conversation history
 - **`/resume`** - Resume last session
+- **`/shell <command>`** - Execute shell command (e.g., `/shell ls -la /tmp`)
 - **`/exit`** or **`/bye`** - Exit the CLI
+
+**Shell Command Examples:**
+```bash
+# Check files in /tmp directory
+You > /shell ls -la /tmp
+
+# Count files
+You > /shell ls /tmp | wc -l
+
+# Check disk usage
+You > /shell df -h
+
+# View current directory
+You > /shell pwd
+```
+
+**Safety Features:**
+- ⚠️ Dangerous commands are blocked (rm, sudo, format, etc.)
+- ⏱️ Commands timeout after 30 seconds
+- 🔒 Safe execution with proper error handling
 
 The CLI features:
 - 🎨 Rich terminal UI with colored output
@@ -79,6 +102,7 @@ The CLI features:
 - 💾 Auto-save sessions after each exchange
 - 📝 Command history with auto-suggest (use ↑/↓ arrows)
 - 🔄 Automatic session persistence
+- 🖥️ Safe shell command execution
 
 ### One-Shot Mode
 
@@ -233,7 +257,40 @@ rm -rf ~/.inception/sessions/
 rm ~/.inception/history.txt
 ```
 
+## Architecture
+
+The CLI follows clean code principles with a modular architecture:
+
+```
+cli-inceptionlabs/
+├── cli.py                 # Main CLI entry point
+├── core/                  # Core modules
+│   ├── __init__.py
+│   ├── config.py         # Configuration management
+│   ├── session.py        # Session and history management
+│   ├── api_client.py     # InceptionLabs API client
+│   ├── ui.py             # User interface utilities
+│   ├── commands.py       # Command handler
+│   └── shell_executor.py # Safe shell command execution
+├── memory/               # Chat history storage
+└── requirements.txt
+```
+
+**Design Principles:**
+- 🎯 **Single Responsibility** - Each module has one clear purpose
+- 🔌 **Dependency Injection** - Easy to test and extend
+- 🛡️ **Type Hints** - Better code clarity and IDE support
+- 🧪 **Testable** - Modular design enables unit testing
+- 📦 **Reusable** - Core modules can be imported elsewhere
+
 ## What's New
+
+**v2.1 - Clean Code & Shell Execution:**
+- 🏗️ Complete refactor with clean code architecture
+- 🖥️ Shell command execution with safety checks
+- 🔒 Dangerous command blocking
+- 📁 Modular core package structure
+- 🎯 Type hints throughout codebase
 
 **v2.0 - Claude Code Inspired Update:**
 - ✨ Streaming responses for real-time feedback
