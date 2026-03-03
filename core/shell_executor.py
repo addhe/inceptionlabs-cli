@@ -11,7 +11,8 @@ class ShellExecutor:
     
     # Commands that are actually dangerous when executed
     DANGEROUS_COMMANDS = [
-        r'\brm\s+-rf\b',      # rm -rf
+        r'\brm\s+-rf\b',      # rm -rf (always dangerous)
+        r'\brm\s+.*\s+-rf\b', # rm with -rf anywhere
         r'\brmdir\b',         # rmdir
         r'\bmkfs\b',          # mkfs (format filesystem)
         r'\bdd\s+',           # dd command
@@ -34,6 +35,13 @@ class ShellExecutor:
         r'mkdir\s+(-p\s+)?/tmp/',  # mkdir in /tmp
     ]
     
+    SAFE_CLEANUP_PATTERNS = [
+        r'\brm\s+/tmp/tmpfile_\*',   # rm /tmp/tmpfile_*
+        r'\brm\s+/tmp/test_\*',      # rm /tmp/test_*
+        r'\brm\s+/tmp/temp_\*',      # rm /tmp/temp_*
+        r'\brm\s+/tmp/.*\*',         # rm /tmp/pattern*
+    ]
+    
     @classmethod
     def is_safe_command(cls, command: str) -> Tuple[bool, str]:
         """Check if command is safe to execute."""
@@ -45,6 +53,14 @@ class ShellExecutor:
         # Check if it's a safe write operation to /tmp
         for pattern in cls.SAFE_WRITE_PATTERNS:
             if re.search(pattern, command):
+                return True, "OK"
+        
+        # Check if it's a safe cleanup pattern in /tmp
+        for pattern in cls.SAFE_CLEANUP_PATTERNS:
+            if re.search(pattern, command):
+                # Still check for -rf flag
+                if re.search(r'\brm\s+.*-rf', command):
+                    return False, "rm -rf is not allowed"
                 return True, "OK"
         
         # Check for dangerous commands using word boundaries
