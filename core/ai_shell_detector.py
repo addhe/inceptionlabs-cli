@@ -20,16 +20,52 @@ class AIShellDetector:
             dict with 'cmd' key if found, None otherwise
         """
         # Try to find JSON command in response
-        json_pattern = r'\{"cmd":\s*\[.*?\]\}'
-        matches = re.findall(json_pattern, response, re.DOTALL)
+        # Use a more robust pattern that handles nested brackets and newlines
+        # Look for {"cmd": followed by balanced brackets
+        start_pattern = r'\{"cmd"\s*:\s*\['
         
-        if matches:
-            try:
-                cmd_data = json.loads(matches[0])
-                if 'cmd' in cmd_data and isinstance(cmd_data['cmd'], list):
-                    return cmd_data
-            except json.JSONDecodeError:
-                pass
+        # Find all potential start positions
+        for match in re.finditer(start_pattern, response):
+            start_pos = match.start()
+            # Find the matching closing brace by counting brackets
+            bracket_count = 0
+            brace_count = 0
+            in_string = False
+            escape_next = False
+            
+            for i in range(start_pos, len(response)):
+                char = response[i]
+                
+                if escape_next:
+                    escape_next = False
+                    continue
+                
+                if char == '\\':
+                    escape_next = True
+                    continue
+                
+                if char == '"' and not escape_next:
+                    in_string = not in_string
+                    continue
+                
+                if not in_string:
+                    if char == '[':
+                        bracket_count += 1
+                    elif char == ']':
+                        bracket_count -= 1
+                    elif char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            # Found the closing brace
+                            json_str = response[start_pos:i+1]
+                            try:
+                                cmd_data = json.loads(json_str)
+                                if 'cmd' in cmd_data and isinstance(cmd_data['cmd'], list):
+                                    return cmd_data
+                            except json.JSONDecodeError:
+                                break
         
         return None
     
