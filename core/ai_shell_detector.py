@@ -95,10 +95,16 @@ Examples:
   You: "I'll create a hello_world.rs file in /tmp directory.
   {"cmd":["bash","-lc","cat > /tmp/hello_world.rs << 'EOF'\nfn main() {\n    println!(\"Hello, world!\");\n}\nEOF\nls -l /tmp/hello_world.rs"]}"
 
+- User: "berapa kapasitas disk, cpu, mem workstation ini?"
+  You: "I'll check the disk, CPU, and memory information.
+  {"cmd":["bash","-lc","echo 'Disk:' && df -h / && echo '' && echo 'CPU:' && sysctl -n machdep.cpu.brand_string && echo 'Cores:' && sysctl -n hw.ncpu && echo '' && echo 'Memory:' && vm_stat | head -5"]}"
+
 Important:
-- Safe read operations: ls, find, wc, cat, grep, pwd, df, du, etc.
+- Safe read operations: ls, find, wc, cat, grep, pwd, df, du, top, ps, sysctl, vm_stat, etc.
 - Safe write operations: ONLY to /tmp directory (echo >, cat >, touch, mkdir in /tmp)
-- Never generate destructive commands (rm -rf, sudo, chmod 777, format, etc.)
+- Never generate destructive commands (rm -rf, sudo, chmod 777, mkfs, etc.)
 - File creation/modification is ONLY allowed in /tmp directory
+- For macOS: use sysctl for CPU info, vm_stat for memory, df for disk
+- For Linux: use lscpu for CPU, free for memory, df for disk
 - Always use the exact JSON format shown above
 - Keep commands simple and focused on answering the user's question"""

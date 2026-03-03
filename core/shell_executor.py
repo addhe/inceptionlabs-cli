@@ -9,14 +9,24 @@ console = Console()
 class ShellExecutor:
     """Execute shell commands safely."""
     
+    # Commands that are actually dangerous when executed
     DANGEROUS_COMMANDS = [
-        'rm -rf', 'rmdir', 'del', 'format', 'mkfs',
-        'dd', 'shutdown', 'reboot', 'halt',
-        'sudo', 'su', 'chmod 777', 'chown'
+        r'\brm\s+-rf\b',      # rm -rf
+        r'\brmdir\b',         # rmdir
+        r'\bmkfs\b',          # mkfs (format filesystem)
+        r'\bdd\s+',           # dd command
+        r'\bshutdown\b',      # shutdown
+        r'\breboot\b',        # reboot
+        r'\bhalt\b',          # halt
+        r'\bsudo\b',          # sudo
+        r'\bsu\b',            # su
+        r'\bchmod\s+777\b',   # chmod 777
+        r'\bchown\b',         # chown
     ]
     
     SAFE_WRITE_PATTERNS = [
         r'cat\s+<<.*?>\s+/tmp/',  # heredoc to /tmp
+        r'cat\s+>\s+/tmp/',        # cat redirect to /tmp
         r'echo\s+.*?>\s+/tmp/',    # echo to /tmp
         r'printf\s+.*?>\s+/tmp/',  # printf to /tmp
         r'tee\s+/tmp/',            # tee to /tmp
@@ -30,22 +40,28 @@ class ShellExecutor:
         if not command or not command.strip():
             return False, "Empty command"
         
-        # Check if it's a safe write operation to /tmp
         import re
+        
+        # Check if it's a safe write operation to /tmp
         for pattern in cls.SAFE_WRITE_PATTERNS:
             if re.search(pattern, command):
-                # It's a safe write to /tmp, allow it
                 return True, "OK"
         
-        # Check for dangerous commands
-        cmd_lower = command.lower()
-        for dangerous in cls.DANGEROUS_COMMANDS:
-            if dangerous in cmd_lower:
-                return False, f"Dangerous command detected: {dangerous}"
+        # Check for dangerous commands using word boundaries
+        for dangerous_pattern in cls.DANGEROUS_COMMANDS:
+            if re.search(dangerous_pattern, command, re.IGNORECASE):
+                return False, f"Dangerous command detected"
         
-        # Block write operations outside /tmp
-        if '>' in command and '/tmp/' not in command:
-            return False, "File write operations only allowed in /tmp directory"
+        # Block write operations outside /tmp (but allow in echo strings)
+        # Only check for redirects that are actual commands, not in strings
+        if re.search(r'(?<!["\'])>\s+(?!/tmp/)', command):
+            # Check if it's not within quotes
+            parts = command.split('>')
+            if len(parts) > 1:
+                # Check if the redirect target is not /tmp
+                target = parts[1].strip().split()[0] if parts[1].strip() else ""
+                if target and not target.startswith('/tmp/') and not target.startswith("'") and not target.startswith('"'):
+                    return False, "File write operations only allowed in /tmp directory"
         
         return True, "OK"
     
