@@ -139,10 +139,11 @@ def interactive_chat(model: str, max_tokens: int, resume: bool = False) -> None:
                     assistant_msg = ""
                     
                     for chunk in response:
-                        if chunk.choices[0].delta.content:
-                            content = chunk.choices[0].delta.content
-                            assistant_msg += content
-                            console.print(content, end="")
+                        if chunk.choices and len(chunk.choices) > 0:
+                            if chunk.choices[0].delta.content:
+                                content = chunk.choices[0].delta.content
+                                assistant_msg += content
+                                console.print(content, end="")
                     
                     console.print("\n")
                     
@@ -202,11 +203,15 @@ def ask(prompt, model, max_tokens, stream):
         
         if stream:
             for chunk in response:
-                if chunk.choices[0].delta.content:
-                    console.print(chunk.choices[0].delta.content, end="")
+                if chunk.choices and len(chunk.choices) > 0:
+                    if chunk.choices[0].delta.content:
+                        console.print(chunk.choices[0].delta.content, end="")
             console.print("\n")
         else:
-            ui.print_markdown(response.choices[0].message.content)
+            if response.choices and len(response.choices) > 0:
+                ui.print_markdown(response.choices[0].message.content)
+            else:
+                ui.print_error("No response received from API")
         
     except Exception as e:
         error_msg = str(e)
