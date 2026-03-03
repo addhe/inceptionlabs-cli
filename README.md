@@ -12,6 +12,7 @@ A powerful command-line interface for interacting with the InceptionLabs API, in
 📝 **Command History** - Auto-suggest from previous commands
 🎯 **One-Shot Mode** - Quick queries without entering interactive mode
 🖥️ **Shell Command Execution** - Execute terminal commands safely from within the CLI
+🤖 **AI-Powered Command Detection** - AI automatically detects and executes shell commands from natural language
 🏗️ **Clean Code Architecture** - Modular design with separation of concerns
 
 ## Installation
@@ -77,6 +78,8 @@ Once in interactive mode, you can use these commands:
 - **`/exit`** or **`/bye`** - Exit the CLI
 
 **Shell Command Examples:**
+
+*Manual execution with /shell:*
 ```bash
 # Check files in /tmp directory
 You > /shell ls -la /tmp
@@ -89,6 +92,27 @@ You > /shell df -h
 
 # View current directory
 You > /shell pwd
+```
+
+*AI-powered natural language (automatic detection & execution):*
+```bash
+# AI detects the need and executes automatically
+You > ada berapa file di /tmp ?
+Assistant: I'll check the number of files in /tmp directory.
+{"cmd":["bash","-lc","find /tmp -maxdepth 1 -type f | wc -l"]}
+🔧 Detected command: find /tmp -maxdepth 1 -type f | wc -l
+✓ Command executed successfully
+Output: 42
+
+# Another example
+You > ada berapa folder dan files di directory ini ?
+Assistant: Let me count the folders and files in the current directory.
+{"cmd":["bash","-lc","echo 'Folders:' && find . -maxdepth 1 -type d | wc -l && echo 'Files:' && find . -maxdepth 1 -type f | wc -l"]}
+🔧 Detected command: echo 'Folders:' && find . -maxdepth 1 -type d | wc -l...
+✓ Command executed successfully
+Output:
+Folders: 5
+Files: 8
 ```
 
 **Safety Features:**
@@ -263,16 +287,17 @@ The CLI follows clean code principles with a modular architecture:
 
 ```
 cli-inceptionlabs/
-├── cli.py                 # Main CLI entry point
-├── core/                  # Core modules
+├── cli.py                    # Main CLI entry point
+├── core/                     # Core modules
 │   ├── __init__.py
-│   ├── config.py         # Configuration management
-│   ├── session.py        # Session and history management
-│   ├── api_client.py     # InceptionLabs API client
-│   ├── ui.py             # User interface utilities
-│   ├── commands.py       # Command handler
-│   └── shell_executor.py # Safe shell command execution
-├── memory/               # Chat history storage
+│   ├── config.py            # Configuration management
+│   ├── session.py           # Session and history management
+│   ├── api_client.py        # InceptionLabs API client
+│   ├── ui.py                # User interface utilities
+│   ├── commands.py          # Command handler
+│   ├── shell_executor.py    # Safe shell command execution
+│   └── ai_shell_detector.py # AI-powered command detection
+├── memory/                  # Chat history storage
 └── requirements.txt
 ```
 
@@ -284,6 +309,13 @@ cli-inceptionlabs/
 - 📦 **Reusable** - Core modules can be imported elsewhere
 
 ## What's New
+
+**v2.2 - AI-Powered Shell Detection:**
+- 🤖 AI automatically detects when to execute shell commands
+- 💬 Natural language queries trigger automatic command execution
+- 🎯 Smart command extraction from AI responses
+- 📝 Seamless integration with chat flow
+- ✨ No need to manually use /shell for common queries
 
 **v2.1 - Clean Code & Shell Execution:**
 - 🏗️ Complete refactor with clean code architecture

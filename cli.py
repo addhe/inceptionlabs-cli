@@ -10,6 +10,7 @@ from core.api_client import InceptionLabsClient
 from core.ui import UI
 from core.commands import CommandHandler
 from core.shell_executor import ShellExecutor
+from core.ai_shell_detector import AIShellDetector
 
 console = Console()
 ui = UI()
@@ -78,17 +79,22 @@ def interactive_chat(model: str, max_tokens: int, resume: bool = False) -> None:
     session_manager = SessionManager()
     command_handler = CommandHandler(session_manager)
 
-    # Initialize or resume history
+    # Initialize or resume history with AI shell detection prompt
+    system_prompt = AIShellDetector.create_system_prompt()
+    
     if resume:
         session = session_manager.load_session()
         if session and session.get("history"):
             history = session["history"]
+            # Update system prompt if it's different
+            if history and history[0]["role"] == "system":
+                history[0]["content"] = system_prompt
             ui.print_success(f"✓ Resumed session from {session['timestamp']}\n")
         else:
-            history = [{"role": "system", "content": "You are a helpful AI assistant with shell command execution capabilities."}]
+            history = [{"role": "system", "content": system_prompt}]
             ui.print_warning("No previous session found. Starting fresh.\n")
     else:
-        history = [{"role": "system", "content": "You are a helpful AI assistant with shell command execution capabilities."}]
+        history = [{"role": "system", "content": system_prompt}]
 
     # Setup prompt with history
     prompt_session = PromptSession(
@@ -140,7 +146,12 @@ def interactive_chat(model: str, max_tokens: int, resume: bool = False) -> None:
                     
                     console.print("\n")
                     
-                    # Add assistant message to history
+                    # Check for shell commands in response and execute
+                    cleaned_response, cmd_executed = AIShellDetector.execute_from_response(
+                        assistant_msg, auto_execute=True
+                    )
+                    
+                    # Add the original response to history (including command JSON)
                     history.append({"role": "assistant", "content": assistant_msg})
                     
                     # Save session after each exchange
