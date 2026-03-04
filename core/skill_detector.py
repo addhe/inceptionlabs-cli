@@ -127,6 +127,8 @@ class SkillDetector:
             self._display_git_helper_result(result, console)
         elif skill_name == "web_search":
             self._display_web_search_result(result, console)
+        elif skill_name == "rss_reader":
+            self._display_rss_reader_result(result, console)
         else:
             # Generic JSON display
             console.print(JSON(json.dumps(result, indent=2)))
@@ -215,3 +217,44 @@ class SkillDetector:
             console.print("\n[yellow]⚠ No detailed results found from DuckDuckGo Instant Answer API.[/yellow]")
             console.print("[dim]Note: DuckDuckGo Instant Answer works best for factual queries (definitions, concepts).[/dim]")
             console.print("[dim]For news and current events, try more specific queries or use a news-specific API.[/dim]")
+    
+    def _display_rss_reader_result(self, result: Dict, console) -> None:
+        """Display RSS feed reader results."""
+        from rich.table import Table
+        from rich.panel import Panel
+        
+        feed_title = result.get('feed_title', 'RSS Feed')
+        source = result.get('source', '')
+        articles = result.get('articles', [])
+        
+        # Display feed info
+        console.print(f"\n[bold cyan]📰 {feed_title}[/bold cyan]")
+        console.print(f"[dim]Source: {source}[/dim]\n")
+        
+        if not articles:
+            console.print("[yellow]No articles found in feed[/yellow]")
+            return
+        
+        # Display articles
+        for i, article in enumerate(articles, 1):
+            title = article.get('title', 'No title')
+            link = article.get('link', '')
+            published = article.get('published', '')
+            summary = article.get('summary', '')
+            
+            # Create panel for each article
+            content = f"[bold]{title}[/bold]\n"
+            if published:
+                content += f"[dim]📅 {published}[/dim]\n"
+            if summary:
+                content += f"\n{summary}\n"
+            if link:
+                content += f"\n[blue]🔗 {link}[/blue]"
+            
+            panel = Panel(
+                content,
+                title=f"Article {i}",
+                border_style="cyan",
+                expand=False
+            )
+            console.print(panel)

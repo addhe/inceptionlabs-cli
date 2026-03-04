@@ -4,3 +4,4 @@ python-dotenv>=1.0.1
 requests>=2.31.0
 rich>=13.7.0
 prompt_toolkit>=3.0.43
+feedparser>=6.0.10
