@@ -13,6 +13,7 @@ A powerful command-line interface for interacting with the InceptionLabs API, in
 🎯 **One-Shot Mode** - Quick queries without entering interactive mode.  
 🖥️ **Shell Command Execution** - Execute terminal commands safely from within the CLI.  
 🤖 **AI-Powered Command Detection** - AI automatically detects and executes shell commands from natural language.  
+🧩 **Skills System** - Extensible plugin architecture like Claude Code, Gemini Skills, and OpenClaw.  
 🏗️ **Clean Code Architecture** - Modular design with separation of concerns.  
 
 ## Installation
@@ -75,6 +76,7 @@ Once in interactive mode, you can use these commands:
 - **`/clear`** - Clear conversation history
 - **`/resume`** - Resume last session
 - **`/shell <command>`** - Execute shell command (e.g., `/shell ls -la /tmp`)
+- **`/skills`** - List available skills and how to use them
 - **`/exit`** or **`/bye`** - Exit the CLI
 
 **Shell Command Examples:**
@@ -127,6 +129,38 @@ The CLI features:
 - 📝 Command history with auto-suggest (use ↑/↓ arrows)
 - 🔄 Automatic session persistence
 - 🖥️ Safe shell command execution
+
+### Skills System
+
+InceptionLabs CLI includes an extensible skills system similar to Claude Code, Gemini Skills, and OpenClaw. Skills are specialized tools that extend the AI's capabilities.
+
+**Built-in Skills:**
+
+1. **File Analyzer** - Analyze code files and directories
+   ```bash
+   You > analyze the cli.py file
+   You > analyze the core directory recursively
+   ```
+
+2. **Web Search** - Search the web using DuckDuckGo
+   ```bash
+   You > search for Python best practices
+   You > what is clean code architecture
+   ```
+
+3. **Git Helper** - Git operations (status, log, branches)
+   ```bash
+   You > show me the git status
+   You > what are the recent commits
+   ```
+
+**List available skills:**
+```bash
+You > /skills
+```
+
+**Create custom skills:**
+Add Python files to the `skills/` directory. See [SKILLS.md](SKILLS.md) for detailed documentation.
 
 ### One-Shot Mode
 
@@ -296,8 +330,17 @@ cli-inceptionlabs/
 │   ├── ui.py                # User interface utilities
 │   ├── commands.py          # Command handler
 │   ├── shell_executor.py    # Safe shell command execution
-│   └── ai_shell_detector.py # AI-powered command detection
-├── memory/                  # Chat history storage
+│   ├── ai_shell_detector.py # AI-powered command detection
+│   ├── skill_base.py        # Base skill class and metadata
+│   ├── skill_manager.py     # Skills loading and management
+│   └── skill_detector.py    # AI-powered skill detection
+├── skills/                   # Skills plugins
+│   ├── __init__.py
+│   ├── file_analyzer.py     # File analysis skill
+│   ├── web_search.py        # Web search skill
+│   └── git_helper.py        # Git operations skill
+├── memory/                   # Chat history storage
+├── SKILLS.md                 # Skills documentation
 └── requirements.txt
 ```
 
@@ -309,6 +352,14 @@ cli-inceptionlabs/
 - 📦 **Reusable** - Core modules can be imported elsewhere
 
 ## What's New
+
+**v2.3 - Skills System:**
+- 🧩 Extensible skills system like Claude Code, Gemini Skills, and OpenClaw
+- 📦 Plugin architecture for custom skills
+- 🔧 Built-in skills: File Analyzer, Web Search, Git Helper
+- 🤖 AI-powered skill detection and execution
+- 📊 Rich formatted output for skill results
+- 📝 Comprehensive skills documentation in SKILLS.md
 
 **v2.2 - AI-Powered Shell Detection:**
 - 🤖 AI automatically detects when to execute shell commands
