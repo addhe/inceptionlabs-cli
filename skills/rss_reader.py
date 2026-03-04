@@ -14,12 +14,14 @@ class RSSReaderSkill(Skill):
     FEED_SOURCES = {
         "bbc": "http://feeds.bbci.co.uk/news/rss.xml",
         "cnn": "http://rss.cnn.com/rss/edition.rss",
-        "reuters": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best",
+        "reuters": "https://www.reutersagency.com/feed/?best-topics=tech&post_type=best",
         "techcrunch": "https://techcrunch.com/feed/",
         "hackernews": "https://news.ycombinator.com/rss",
         "nytimes": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
         "guardian": "https://www.theguardian.com/world/rss",
         "aljazeera": "https://www.aljazeera.com/xml/rss/all.xml",
+        "verge": "https://www.theverge.com/rss/index.xml",
+        "wired": "https://www.wired.com/feed/rss",
     }
     
     def get_metadata(self) -> SkillMetadata:
@@ -64,64 +66,57 @@ class RSSReaderSkill(Skill):
         feed_url = self.FEED_SOURCES.get(source.lower(), source)
         
         try:
-            # Use feedparser via Python
-            result = subprocess.run(
-                ["python3", "-c", f"""
-import feedparser
-import json
-
-feed = feedparser.parse('{feed_url}')
-
-if feed.bozo:
-    print(json.dumps({{"error": "Failed to parse feed"}}))
-else:
-    articles = []
-    for entry in feed.entries[:{limit}]:
-        articles.append({{
-            "title": entry.get("title", ""),
-            "link": entry.get("link", ""),
-            "published": entry.get("published", ""),
-            "summary": entry.get("summary", "")[:200] + "..." if len(entry.get("summary", "")) > 200 else entry.get("summary", "")
-        }})
-    
-    print(json.dumps({{
-        "feed_title": feed.feed.get("title", ""),
-        "articles": articles
-    }}))
-"""],
-                capture_output=True,
-                text=True,
-                timeout=15
-            )
+            # Use feedparser directly (more reliable than subprocess)
+            import feedparser
             
-            if result.returncode == 0:
-                import json
-                data = json.loads(result.stdout)
-                
-                if "error" in data:
-                    return {
-                        "success": False,
-                        "error": data["error"]
-                    }
-                
-                return {
-                    "success": True,
-                    "result": {
-                        "source": source,
-                        "feed_url": feed_url,
-                        "feed_title": data.get("feed_title", ""),
-                        "articles": data.get("articles", [])
-                    }
-                }
-            else:
-                # Fallback: try using curl + basic parsing
+            feed = feedparser.parse(feed_url)
+            
+            if feed.bozo and not feed.entries:
+                # If parsing failed and no entries, try fallback
                 return self._fallback_parse(feed_url, limit, source)
+            
+            # Extract articles
+            articles = []
+            for entry in feed.entries[:limit]:
+                summary = entry.get("summary", "") or entry.get("description", "")
+                # Clean HTML tags from summary
+                import re
+                summary = re.sub(r'<[^>]+>', '', summary).strip()
+                if len(summary) > 200:
+                    summary = summary[:200] + "..."
+                
+                articles.append({
+                    "title": entry.get("title", ""),
+                    "link": entry.get("link", ""),
+                    "published": entry.get("published", "") or entry.get("updated", ""),
+                    "summary": summary
+                })
+            
+            if not articles:
+                return {
+                    "success": False,
+                    "error": "No articles found in feed"
+                }
+            
+            return {
+                "success": True,
+                "result": {
+                    "source": source,
+                    "feed_url": feed_url,
+                    "feed_title": feed.feed.get("title", f"{source.upper()} News"),
+                    "articles": articles
+                }
+            }
                 
         except Exception as e:
-            return {
-                "success": False,
-                "error": f"RSS read error: {str(e)}"
-            }
+            # Try fallback parsing
+            try:
+                return self._fallback_parse(feed_url, limit, source)
+            except:
+                return {
+                    "success": False,
+                    "error": f"RSS read error: {str(e)}"
+                }
     
     def _fallback_parse(self, feed_url: str, limit: int, source: str) -> Dict[str, Any]:
         """Fallback parsing using curl and basic XML parsing."""
