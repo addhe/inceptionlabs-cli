@@ -11,19 +11,21 @@ class UI:
     @staticmethod
     def print_welcome(model: str) -> None:
         """Print welcome message."""
-        console.print(Panel.fit(
-            "[bold cyan]Welcome to InceptionLabs CLI![/bold cyan]\n"
-            f"Using model: [yellow]{model}[/yellow]\n\n"
-            "[dim]Commands:[/dim]\n"
-            "  [green]/help[/green]    - Show available commands\n"
-            "  [green]/clear[/green]   - Clear conversation history\n"
-            "  [green]/resume[/green]  - Resume last session\n"
-            "  [green]/shell[/green]   - Execute shell command\n"
-            "  [green]/exit[/green]    - Exit the CLI\n"
-            "  [green]/bye[/green]     - Exit the CLI",
+        panel = Panel(
+            f"[bold]Welcome to InceptionLabs CLI![/bold]\n"
+            f"Using model: [cyan]{model}[/cyan]\n\n"
+            f"Commands:\n"
+            f"  [green]/help[/green]    - Show available commands\n"
+            f"  [green]/clear[/green]   - Clear conversation history\n"
+            f"  [green]/resume[/green]  - Resume last session\n"
+            f"  [green]/shell[/green]   - Execute shell command\n"
+            f"  [green]/skills[/green]  - List available skills\n"
+            f"  [green]/exit[/green]    - Exit the CLI\n"
+            f"  [green]/bye[/green]     - Exit the CLI",
             title="🚀 InceptionLabs",
             border_style="cyan"
-        ))
+        )
+        console.print(panel)
     
     @staticmethod
     def print_error(message: str) -> None:
@@ -64,6 +66,7 @@ class UI:
         console.print("  [green]/help[/green]    - Show this help message")
         console.print("  [green]/clear[/green]   - Clear conversation history")
         console.print("  [green]/resume[/green]  - Resume last session")
-        console.print("  [green]/shell <cmd>[/green] - Execute shell command (e.g., /shell ls -la)")
+        console.print("  [green]/shell[/green]   - Execute shell command")
+        console.print("  [green]/skills[/green]  - List available skills")
         console.print("  [green]/exit[/green]    - Exit the CLI")
         console.print("  [green]/bye[/green]     - Exit the CLI\n")

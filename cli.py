@@ -11,10 +11,14 @@ from core.ui import UI
 from core.commands import CommandHandler
 from core.shell_executor import ShellExecutor
 from core.ai_shell_detector import AIShellDetector
+from core.skill_manager import SkillManager
+from core.skill_detector import SkillDetector
 
 console = Console()
 ui = UI()
 config = Config()
+skill_manager = SkillManager()
+skill_detector = SkillDetector(skill_manager)
 
 def validate_api_key() -> str:
     """Validate and return API key."""
@@ -77,10 +81,11 @@ def interactive_chat(model: str, max_tokens: int, resume: bool = False) -> None:
     
     client = InceptionLabsClient(api_key)
     session_manager = SessionManager()
-    command_handler = CommandHandler(session_manager)
+    command_handler = CommandHandler(session_manager, skill_manager)
 
-    # Initialize or resume history with AI shell detection prompt
-    system_prompt = AIShellDetector.create_system_prompt()
+    # Initialize or resume history with AI shell detection and skills prompt
+    skills_description = skill_manager.get_skills_for_ai_prompt()
+    system_prompt = AIShellDetector.create_system_prompt(skills_description)
     
     if resume:
         session = session_manager.load_session()
@@ -152,7 +157,12 @@ def interactive_chat(model: str, max_tokens: int, resume: bool = False) -> None:
                         assistant_msg, auto_execute=True
                     )
                     
-                    # Add the original response to history (including command JSON)
+                    # Check for skills in response and execute
+                    cleaned_response, skill_executed, skill_result = skill_detector.execute_from_response(
+                        cleaned_response if cmd_executed else assistant_msg
+                    )
+                    
+                    # Add the original response to history (including command/skill JSON)
                     history.append({"role": "assistant", "content": assistant_msg})
                     
                     # Save session after each exchange

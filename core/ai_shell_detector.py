@@ -109,9 +109,9 @@ class AIShellDetector:
             return cleaned_response, False
     
     @staticmethod
-    def create_system_prompt() -> str:
-        """Create system prompt that instructs AI to generate shell commands."""
-        return """You are a helpful AI assistant with shell command execution capabilities.
+    def create_system_prompt(skills_description: str = "") -> str:
+        """Create system prompt that instructs AI to generate shell commands and use skills."""
+        base_prompt = """You are a helpful AI assistant with shell command execution and skills capabilities.
 
 When a user asks a question that requires checking the system or file system, you should:
 1. Provide a brief explanation of what you'll do
@@ -150,3 +150,5 @@ Important:
 - For Linux: use lscpu for CPU, free for memory, df for disk, date +%s%N for timing
 - Always use the exact JSON format shown above
 - Keep commands simple and focused on answering the user's question"""
+        
+        return base_prompt + skills_description
