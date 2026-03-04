@@ -191,17 +191,27 @@ class SkillDetector:
         console.print(f"\n[bold]Query:[/bold] {result.get('query')}")
         
         abstract = result.get('abstract')
+        source_url = result.get('source_url')
+        topics = result.get('related_topics', [])
+        
+        # Check if we have any results
+        has_results = bool(abstract or source_url or topics)
+        
         if abstract:
             console.print(f"\n[bold]Summary:[/bold]\n{abstract}")
         
-        source_url = result.get('source_url')
         if source_url:
             console.print(f"\n[bold]Source:[/bold] {source_url}")
         
-        topics = result.get('related_topics', [])
         if topics:
             console.print("\n[bold]Related Topics:[/bold]")
             for topic in topics:
                 console.print(f"  • {topic.get('text', '')}")
                 if topic.get('url'):
                     console.print(f"    {topic['url']}")
+        
+        # Show message if no results found
+        if not has_results:
+            console.print("\n[yellow]⚠ No detailed results found from DuckDuckGo Instant Answer API.[/yellow]")
+            console.print("[dim]Note: DuckDuckGo Instant Answer works best for factual queries (definitions, concepts).[/dim]")
+            console.print("[dim]For news and current events, try more specific queries or use a news-specific API.[/dim]")
